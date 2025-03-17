@@ -1,2 +1,3 @@
 - [ ] Task 502: optimize function 32
 - [ ] Task 739: optimize function 41
+- [ ] Task 51: optimize function 20
