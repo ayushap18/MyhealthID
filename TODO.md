@@ -3,3 +3,4 @@
 - [ ] Task 51: optimize function 20
 - [ ] Task 307: optimize function 25
 - [ ] Task 531: optimize function 26
+- [ ] Task 873: optimize function 33
