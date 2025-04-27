@@ -4,3 +4,4 @@ Session 102: tested feature 23, result OK
 Session 2: tested feature 28, result OK
 Session 639: tested feature 1, result OK
 Session 504: tested feature 11, result OK
+Session 647: tested feature 16, result OK
