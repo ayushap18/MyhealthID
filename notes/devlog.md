@@ -9,3 +9,4 @@ Session 740: tested feature 1, result OK
 Session 26: tested feature 6, result OK
 Session 191: tested feature 0, result OK
 Session 841: tested feature 1, result OK
+Session 955: tested feature 6, result OK
