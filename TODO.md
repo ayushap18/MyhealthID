@@ -7,3 +7,4 @@
 - [ ] Task 744: optimize function 11
 - [ ] Task 653: optimize function 44
 - [ ] Task 974: optimize function 12
+- [ ] Task 560: optimize function 49
