@@ -8,3 +8,4 @@
 - [ ] Task 653: optimize function 44
 - [ ] Task 974: optimize function 12
 - [ ] Task 560: optimize function 49
+- [ ] Task 36: optimize function 10
