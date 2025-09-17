@@ -12,3 +12,4 @@
 - [ ] Task 216: optimize function 4
 - [ ] Task 118: optimize function 43
 - [ ] Task 56: optimize function 11
+- [ ] Task 745: optimize function 3
