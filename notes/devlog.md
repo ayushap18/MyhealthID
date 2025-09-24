@@ -15,3 +15,4 @@ Session 623: tested feature 16, result OK
 Session 959: tested feature 27, result OK
 Session 860: tested feature 10, result OK
 Session 730: tested feature 26, result OK
+Session 283: tested feature 22, result OK
