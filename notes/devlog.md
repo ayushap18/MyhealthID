@@ -17,3 +17,4 @@ Session 860: tested feature 10, result OK
 Session 730: tested feature 26, result OK
 Session 283: tested feature 22, result OK
 Session 284: tested feature 6, result OK
+Session 714: tested feature 12, result OK
