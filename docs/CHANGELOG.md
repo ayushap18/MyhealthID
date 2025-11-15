@@ -10,3 +10,4 @@
 - Update 27109: improved module 48
 - Update 14401: improved module 11
 - Update 15247: improved module 7
+- Update 11741: improved module 46
