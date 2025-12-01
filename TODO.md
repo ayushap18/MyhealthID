@@ -20,3 +20,4 @@
 - [ ] Task 26: optimize function 48
 - [ ] Task 262: optimize function 22
 - [ ] Task 519: optimize function 43
+- [ ] Task 154: optimize function 17
