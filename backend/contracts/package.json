@@ -1,0 +1,19 @@
+{
+  "name": "health-record-contracts",
+  "version": "1.0.0",
+  "description": "Smart contracts for MyHealthID",
+  "scripts": {
+    "compile": "hardhat compile",
+    "deploy": "hardhat run scripts/deploy.js --network amoy",
+    "test": "hardhat test",
+    "verify": "hardhat verify --network amoy"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "hardhat": "^2.19.4"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.9.3",
+    "dotenv": "^16.3.1"
+  }
+}

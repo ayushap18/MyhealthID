@@ -1,0 +1,8 @@
+{
+  "servers": {
+    "Sentry": {
+      "url": "https://mcp.sentry.dev/mcp/codecatalysts-c4/react-native",
+      "type": "http"
+    }
+  }
+}
