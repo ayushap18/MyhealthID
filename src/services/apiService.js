@@ -442,15 +442,24 @@ export const insurerAPI = {
 export const emergencyAPI = {
   /**
    * Activate emergency access (24-hour access to all records)
+   * Also broadcasts to nearby hospital dispatch panels
+   * @param {string} patientId - Patient ID
+   * @param {object} location - Optional location {lat, lng}
+   * @param {object} patientInfo - Optional patient info for hospitals
    */
-  activate: async (patientId) => {
+  activate: async (patientId, location = null, patientInfo = null) => {
     try {
-      const response = await apiClient.post('/emergency/grant-access', { patientId });
+      const response = await apiClient.post('/emergency/grant-access', { 
+        patientId,
+        location,
+        patientInfo,
+      });
       return {
         token: response.data.consentId,
         expiresAt: response.data.expiresAt,
         qrCode: response.data.qrCode,
         active: true,
+        broadcastSent: response.data.broadcastSent,
       };
     } catch (error) {
       throw error.response?.data || { error: 'Failed to activate emergency access' };

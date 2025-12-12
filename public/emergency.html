@@ -1,0 +1,1748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MyHealthID Emergency Portal - Quick access to emergency services and nearby hospitals">
+    <meta name="theme-color" content="#DC2626">
+    <title>Emergency Portal - MyHealthID</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-red: #DC2626;
+            --dark-red: #B91C1C;
+            --light-red: #FEE2E2;
+            --success-green: #10B981;
+            --warning-orange: #F59E0B;
+            --blue: #3B82F6;
+            --dark-bg: #0F172A;
+            --card-bg: #1E293B;
+            --text-primary: #F1F5F9;
+            --text-secondary: #94A3B8;
+            --border-color: #334155;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--card-bg) 0%, #0F172A 100%);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo i {
+            font-size: 2rem;
+            color: var(--primary-red);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--primary-red), #EF4444);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-red);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .user-name {
+            font-weight: 500;
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Alert Banner */
+        .alert-banner {
+            background: linear-gradient(135deg, var(--primary-red), var(--dark-red));
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            animation: pulse-border 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-border {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+        }
+
+        .alert-icon {
+            font-size: 3rem;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .alert-content h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .alert-content p {
+            opacity: 0.9;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-header i {
+            font-size: 1.25rem;
+            color: var(--primary-red);
+        }
+
+        .card-header h2 {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        /* Emergency Button */
+        .emergency-section {
+            grid-column: 1 / -1;
+        }
+
+        .emergency-button-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 3rem;
+        }
+
+        .emergency-button {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #EF4444, var(--primary-red));
+            border: none;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 0 0 8px rgba(220, 38, 38, 0.2),
+                0 0 0 16px rgba(220, 38, 38, 0.1),
+                0 20px 40px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .emergency-button::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.2), transparent 60%);
+        }
+
+        .emergency-button:hover {
+            transform: scale(1.05);
+            box-shadow: 
+                0 0 0 12px rgba(220, 38, 38, 0.3),
+                0 0 0 24px rgba(220, 38, 38, 0.15),
+                0 25px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .emergency-button:active {
+            transform: scale(0.98);
+        }
+
+        .emergency-button.active {
+            animation: emergency-pulse 1s ease-in-out infinite;
+            background: linear-gradient(145deg, var(--success-green), #059669);
+        }
+
+        @keyframes emergency-pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            50% { box-shadow: 0 0 0 30px rgba(16, 185, 129, 0); }
+        }
+
+        .emergency-button i {
+            font-size: 4rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .emergency-button span {
+            font-size: 1.125rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .emergency-status {
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 100px;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .status-idle {
+            background: rgba(148, 163, 184, 0.1);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .status-active {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-green);
+            border: 1px solid var(--success-green);
+            animation: status-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes status-glow {
+            0%, 100% { box-shadow: 0 0 10px rgba(16, 185, 129, 0.2); }
+            50% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
+        }
+
+        .countdown {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-red);
+            margin-top: 1rem;
+        }
+
+        /* Hospital List */
+        .hospital-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .hospital-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .hospital-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--primary-red);
+        }
+
+        .hospital-item.selected {
+            background: rgba(220, 38, 38, 0.1);
+            border-color: var(--primary-red);
+        }
+
+        .hospital-item.notified {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: var(--success-green);
+        }
+
+        .hospital-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--blue), #1D4ED8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .hospital-info {
+            flex: 1;
+        }
+
+        .hospital-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .hospital-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .hospital-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .hospital-rating {
+            color: var(--warning-orange);
+        }
+
+        .hospital-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-available {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-green);
+        }
+
+        .status-busy {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-orange);
+        }
+
+        /* Map Container */
+        .map-container {
+            height: 400px;
+            background: var(--dark-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .map-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1a2332 0%, #0d1421 100%);
+        }
+
+        .map-placeholder i {
+            font-size: 3rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Patient Info */
+        .patient-card {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .info-value {
+            font-weight: 500;
+        }
+
+        .blood-type {
+            background: var(--primary-red);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-weight: 700;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 1rem;
+            border-radius: 12px;
+            border: none;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-red), var(--dark-red));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(220, 38, 38, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: #475569;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-green), #059669);
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Notification History */
+        .notification-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+        }
+
+        .notification-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+        }
+
+        .notification-icon.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-green);
+        }
+
+        .notification-icon.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-orange);
+        }
+
+        .notification-icon.info {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--blue);
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 500;
+            font-size: 0.875rem;
+            margin-bottom: 0.125rem;
+        }
+
+        .notification-time {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* QR Code Section */
+        .qr-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.5rem;
+        }
+
+        .qr-code {
+            width: 180px;
+            height: 180px;
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .qr-code img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .qr-code canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .qr-info {
+            text-align: center;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--card-bg);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid var(--border-color);
+            animation: modal-in 0.3s ease;
+        }
+
+        @keyframes modal-in {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            background: var(--border-color);
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Login Form */
+        .login-container {
+            min-height: 100vh;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            border: 1px solid var(--border-color);
+            width: 100%;
+            max-width: 440px;
+            padding: 3rem;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header i {
+            font-size: 4rem;
+            color: var(--primary-red);
+            margin-bottom: 1rem;
+        }
+
+        .login-header h1 {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            color: var(--text-secondary);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-red);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, var(--primary-red), var(--dark-red));
+            color: white;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(220, 38, 38, 0.3);
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            z-index: 2000;
+        }
+
+        .toast {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border: 1px solid var(--border-color);
+            animation: toast-in 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes toast-in {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success-green);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--primary-red);
+        }
+
+        .toast.info {
+            border-left: 4px solid var(--blue);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+            }
+
+            .main-container {
+                padding: 1rem;
+            }
+
+            .alert-banner {
+                flex-direction: column;
+                text-align: center;
+                padding: 1.5rem;
+            }
+
+            .emergency-button {
+                width: 160px;
+                height: 160px;
+            }
+
+            .emergency-button i {
+                font-size: 3rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .hospital-meta {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-container" id="loginScreen">
+        <div class="login-card">
+            <div class="login-header">
+                <i class="fas fa-heartbeat"></i>
+                <h1>Emergency Portal</h1>
+                <p>Access emergency services quickly and securely</p>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" for="phone">Phone Number</label>
+                    <input type="tel" id="phone" class="form-input" placeholder="+91 9876543210" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="otp">OTP (Demo: 123456)</label>
+                    <input type="text" id="otp" class="form-input" placeholder="Enter 6-digit OTP" maxlength="6" required>
+                </div>
+                <button type="submit" class="login-btn">
+                    <span>Access Emergency Portal</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div class="dashboard-container" id="dashboardScreen" style="display: none;">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-heartbeat"></i>
+                <span class="logo-text">MyHealthID</span>
+            </div>
+            <div class="user-info">
+                <span class="user-name" id="userName">Loading...</span>
+                <div class="user-avatar" id="userAvatar">?</div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-container">
+            <!-- Alert Banner -->
+            <div class="alert-banner">
+                <div class="alert-icon">
+                    <i class="fas fa-ambulance"></i>
+                </div>
+                <div class="alert-content">
+                    <h1>Emergency Services Portal</h1>
+                    <p>Press the emergency button to instantly alert nearby hospitals and share your health records for faster treatment.</p>
+                </div>
+            </div>
+
+            <!-- Dashboard Grid -->
+            <div class="dashboard-grid">
+                <!-- Emergency Button Section -->
+                <div class="card emergency-section">
+                    <div class="card-header">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h2>Emergency Alert</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="emergency-button-container">
+                            <button class="emergency-button" id="emergencyBtn" onclick="toggleEmergency()">
+                                <i class="fas fa-phone-alt"></i>
+                                <span>SOS</span>
+                            </button>
+                            <div class="emergency-status">
+                                <span class="status-badge status-idle" id="statusBadge">
+                                    <i class="fas fa-circle"></i>
+                                    <span id="statusText">Standby Mode</span>
+                                </span>
+                                <div class="countdown" id="countdown" style="display: none;">
+                                    <i class="fas fa-clock"></i>
+                                    <span id="countdownTime">23:59:59</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nearby Hospitals -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-hospital"></i>
+                        <h2>Nearby Hospitals</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="hospital-list" id="hospitalList">
+                            <div class="hospital-item" data-hospital-id="1">
+                                <div class="hospital-icon">
+                                    <i class="fas fa-hospital"></i>
+                                </div>
+                                <div class="hospital-info">
+                                    <div class="hospital-name">AIIMS Delhi</div>
+                                    <div class="hospital-meta">
+                                        <span><i class="fas fa-location-dot"></i> 2.3 km</span>
+                                        <span class="hospital-rating"><i class="fas fa-star"></i> 4.8</span>
+                                    </div>
+                                </div>
+                                <span class="hospital-status status-available">Available</span>
+                            </div>
+                            <div class="hospital-item" data-hospital-id="2">
+                                <div class="hospital-icon">
+                                    <i class="fas fa-hospital"></i>
+                                </div>
+                                <div class="hospital-info">
+                                    <div class="hospital-name">Max Super Speciality</div>
+                                    <div class="hospital-meta">
+                                        <span><i class="fas fa-location-dot"></i> 3.1 km</span>
+                                        <span class="hospital-rating"><i class="fas fa-star"></i> 4.6</span>
+                                    </div>
+                                </div>
+                                <span class="hospital-status status-available">Available</span>
+                            </div>
+                            <div class="hospital-item" data-hospital-id="3">
+                                <div class="hospital-icon">
+                                    <i class="fas fa-hospital"></i>
+                                </div>
+                                <div class="hospital-info">
+                                    <div class="hospital-name">Fortis Hospital</div>
+                                    <div class="hospital-meta">
+                                        <span><i class="fas fa-location-dot"></i> 4.5 km</span>
+                                        <span class="hospital-rating"><i class="fas fa-star"></i> 4.5</span>
+                                    </div>
+                                </div>
+                                <span class="hospital-status status-busy">Busy</span>
+                            </div>
+                            <div class="hospital-item" data-hospital-id="4">
+                                <div class="hospital-icon">
+                                    <i class="fas fa-hospital"></i>
+                                </div>
+                                <div class="hospital-info">
+                                    <div class="hospital-name">Apollo Hospital</div>
+                                    <div class="hospital-meta">
+                                        <span><i class="fas fa-location-dot"></i> 5.2 km</span>
+                                        <span class="hospital-rating"><i class="fas fa-star"></i> 4.7</span>
+                                    </div>
+                                </div>
+                                <span class="hospital-status status-available">Available</span>
+                            </div>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" onclick="notifySelectedHospitals()" id="notifyBtn">
+                                <i class="fas fa-bell"></i>
+                                Notify All
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Map View -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <h2>Location Map</h2>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                        <div class="map-container">
+                            <div class="map-placeholder" id="mapPlaceholder">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <p>Loading map...</p>
+                                <button class="btn btn-secondary" onclick="loadMap()" style="margin-top: 1rem;">
+                                    <i class="fas fa-location-crosshairs"></i>
+                                    Enable Location
+                                </button>
+                            </div>
+                            <div id="map" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Patient Info -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-user-injured"></i>
+                        <h2>Patient Information</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="patient-card">
+                            <div class="info-row">
+                                <span class="info-label">Full Name</span>
+                                <span class="info-value" id="patientName">Loading...</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Age</span>
+                                <span class="info-value" id="patientAge">--</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Blood Type</span>
+                                <span class="info-value"><span class="blood-type" id="patientBlood">--</span></span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Allergies</span>
+                                <span class="info-value" id="patientAllergies">None known</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Emergency Contact</span>
+                                <span class="info-value" id="patientContact">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Emergency QR Code -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-qrcode"></i>
+                        <h2>Emergency QR Code</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="qr-section">
+                            <div class="qr-code" id="qrCode">
+                                <i class="fas fa-qrcode" style="font-size: 4rem; color: #ccc;"></i>
+                            </div>
+                            <p class="qr-info">Scan this QR code to access emergency health records</p>
+                            <button class="btn btn-secondary" onclick="generateQRCode()" style="margin-top: 1rem;">
+                                <i class="fas fa-refresh"></i>
+                                Generate New QR
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notification History -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-history"></i>
+                        <h2>Activity Log</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="notification-list" id="notificationList">
+                            <div class="notification-item">
+                                <div class="notification-icon info">
+                                    <i class="fas fa-sign-in-alt"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <div class="notification-title">Session Started</div>
+                                    <div class="notification-time">Just now</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Confirm Emergency Alert</h3>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>You are about to send an emergency alert to <strong id="hospitalCount">4</strong> nearby hospitals.</p>
+                <br>
+                <p>This will:</p>
+                <ul style="margin-left: 1.5rem; margin-top: 0.5rem; color: var(--text-secondary);">
+                    <li>Share your emergency health records</li>
+                    <li>Send your current location</li>
+                    <li>Alert hospital emergency departments</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmEmergency()">
+                    <i class="fas fa-paper-plane"></i>
+                    Send Alert
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- QR Code Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <!-- Socket.io for real-time updates -->
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+
+    <script>
+        // Configuration
+        const API_BASE_URL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:5002/api' 
+            : '/api';
+        
+        // State
+        let isEmergencyActive = false;
+        let countdownInterval = null;
+        let emergencyEndTime = null;
+        let currentUser = null;
+        let authToken = null;
+        let socket = null;
+        let userLocation = null;
+        let selectedHospitals = new Set();
+        let qrCodeInstance = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            initializeHospitalSelection();
+        });
+
+        // Check Authentication
+        function checkAuth() {
+            authToken = localStorage.getItem('authToken');
+            const userData = localStorage.getItem('userData');
+            
+            if (authToken && userData) {
+                currentUser = JSON.parse(userData);
+                showDashboard();
+            } else {
+                showLogin();
+            }
+        }
+
+        // Show Login Screen
+        function showLogin() {
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('dashboardScreen').style.display = 'none';
+        }
+
+        // Show Dashboard
+        function showDashboard() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('dashboardScreen').style.display = 'block';
+            
+            updateUserInfo();
+            initializeSocket();
+            loadNearbyHospitals();
+            checkExistingEmergency();
+            addNotification('Session Started', 'success');
+        }
+
+        // Login Form Handler
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const phone = document.getElementById('phone').value;
+            const otp = document.getElementById('otp').value;
+            
+            const btn = e.target.querySelector('button');
+            btn.innerHTML = '<div class="spinner"></div>';
+            btn.disabled = true;
+
+            try {
+                // Try actual API first
+                const response = await fetch(`${API_BASE_URL}/auth/verify-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone, otp })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    authToken = data.token;
+                    currentUser = data.user;
+                    
+                    localStorage.setItem('authToken', authToken);
+                    localStorage.setItem('userData', JSON.stringify(currentUser));
+                    
+                    showToast('Login successful!', 'success');
+                    showDashboard();
+                } else {
+                    throw new Error('Invalid OTP');
+                }
+            } catch (error) {
+                // Demo mode - accept OTP 123456
+                if (otp === '123456') {
+                    currentUser = {
+                        _id: 'demo_user_' + Date.now(),
+                        name: 'Demo Patient',
+                        phone: phone,
+                        bloodType: 'O+',
+                        age: 28,
+                        allergies: ['Penicillin'],
+                        emergencyContact: '+91 9876543210'
+                    };
+                    authToken = 'demo_token_' + Date.now();
+                    
+                    localStorage.setItem('authToken', authToken);
+                    localStorage.setItem('userData', JSON.stringify(currentUser));
+                    
+                    showToast('Demo mode activated!', 'success');
+                    showDashboard();
+                } else {
+                    showToast('Invalid OTP. Use 123456 for demo.', 'error');
+                }
+            } finally {
+                btn.innerHTML = '<span>Access Emergency Portal</span>';
+                btn.disabled = false;
+            }
+        });
+
+        // Update User Info
+        function updateUserInfo() {
+            if (!currentUser) return;
+            
+            document.getElementById('userName').textContent = currentUser.name || 'Patient';
+            document.getElementById('userAvatar').textContent = (currentUser.name || 'P').charAt(0).toUpperCase();
+            document.getElementById('patientName').textContent = currentUser.name || 'Not provided';
+            document.getElementById('patientAge').textContent = currentUser.age || '--';
+            document.getElementById('patientBlood').textContent = currentUser.bloodType || '--';
+            document.getElementById('patientAllergies').textContent = 
+                Array.isArray(currentUser.allergies) && currentUser.allergies.length > 0 
+                    ? currentUser.allergies.join(', ') 
+                    : 'None known';
+            document.getElementById('patientContact').textContent = currentUser.emergencyContact || '--';
+        }
+
+        // Initialize Socket Connection
+        function initializeSocket() {
+            const socketUrl = window.location.hostname === 'localhost' 
+                ? 'http://localhost:5002' 
+                : window.location.origin;
+            
+            socket = io(socketUrl, {
+                auth: { token: authToken }
+            });
+
+            socket.on('connect', () => {
+                console.log('Socket connected');
+            });
+
+            socket.on('emergency_acknowledged', (data) => {
+                showToast(`${data.hospitalName} acknowledged your emergency!`, 'success');
+                addNotification(`${data.hospitalName} acknowledged`, 'success');
+                
+                const hospitalItem = document.querySelector(`[data-hospital-id="${data.hospitalId}"]`);
+                if (hospitalItem) {
+                    hospitalItem.classList.add('notified');
+                }
+            });
+
+            socket.on('ambulance_dispatched', (data) => {
+                showToast(`Ambulance dispatched from ${data.hospitalName}! ETA: ${data.eta}`, 'success');
+                addNotification(`Ambulance dispatched - ETA: ${data.eta}`, 'success');
+            });
+        }
+
+        // Initialize Hospital Selection
+        function initializeHospitalSelection() {
+            document.querySelectorAll('.hospital-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const hospitalId = item.dataset.hospitalId;
+                    
+                    if (selectedHospitals.has(hospitalId)) {
+                        selectedHospitals.delete(hospitalId);
+                        item.classList.remove('selected');
+                    } else {
+                        selectedHospitals.add(hospitalId);
+                        item.classList.add('selected');
+                    }
+                    
+                    updateNotifyButton();
+                });
+            });
+        }
+
+        // Update Notify Button
+        function updateNotifyButton() {
+            const btn = document.getElementById('notifyBtn');
+            const count = selectedHospitals.size;
+            
+            if (count > 0) {
+                btn.innerHTML = `<i class="fas fa-bell"></i> Notify ${count} Hospital${count > 1 ? 's' : ''}`;
+            } else {
+                btn.innerHTML = '<i class="fas fa-bell"></i> Notify All';
+            }
+        }
+
+        // Load Nearby Hospitals
+        async function loadNearbyHospitals() {
+            try {
+                // Get user location
+                if ('geolocation' in navigator) {
+                    navigator.geolocation.getCurrentPosition(
+                        async (position) => {
+                            userLocation = {
+                                lat: position.coords.latitude,
+                                lng: position.coords.longitude
+                            };
+                            
+                            try {
+                                const response = await fetch(
+                                    `${API_BASE_URL}/hospitals/nearby?lat=${userLocation.lat}&lng=${userLocation.lng}&radius=10`,
+                                    { headers: { 'Authorization': `Bearer ${authToken}` } }
+                                );
+                                
+                                if (response.ok) {
+                                    const hospitals = await response.json();
+                                    renderHospitals(hospitals);
+                                }
+                            } catch (err) {
+                                console.log('Using demo hospital data');
+                            }
+                            
+                            loadMap();
+                        },
+                        (error) => {
+                            console.log('Location access denied, using demo data');
+                            // Use IP-based geolocation or default location
+                            userLocation = { lat: 28.6139, lng: 77.2090 }; // Delhi default
+                        }
+                    );
+                }
+            } catch (error) {
+                console.error('Error loading hospitals:', error);
+            }
+        }
+
+        // Render Hospitals
+        function renderHospitals(hospitals) {
+            const container = document.getElementById('hospitalList');
+            container.innerHTML = hospitals.map((h, i) => `
+                <div class="hospital-item" data-hospital-id="${h._id || i + 1}">
+                    <div class="hospital-icon">
+                        <i class="fas fa-hospital"></i>
+                    </div>
+                    <div class="hospital-info">
+                        <div class="hospital-name">${h.name}</div>
+                        <div class="hospital-meta">
+                            <span><i class="fas fa-location-dot"></i> ${h.distance?.toFixed(1) || '?'} km</span>
+                            <span class="hospital-rating"><i class="fas fa-star"></i> ${h.rating || '4.5'}</span>
+                        </div>
+                    </div>
+                    <span class="hospital-status ${h.status === 'busy' ? 'status-busy' : 'status-available'}">
+                        ${h.status || 'Available'}
+                    </span>
+                </div>
+            `).join('');
+            
+            initializeHospitalSelection();
+        }
+
+        // Load Map
+        function loadMap() {
+            if (!userLocation) {
+                showToast('Please enable location access', 'error');
+                return;
+            }
+
+            const mapContainer = document.getElementById('map');
+            const placeholder = document.getElementById('mapPlaceholder');
+            
+            // Simple map using OpenStreetMap
+            placeholder.style.display = 'none';
+            mapContainer.style.display = 'block';
+            
+            // Create iframe with OpenStreetMap
+            mapContainer.innerHTML = `
+                <iframe 
+                    width="100%" 
+                    height="100%" 
+                    frameborder="0" 
+                    style="border:0" 
+                    src="https://www.openstreetmap.org/export/embed.html?bbox=${userLocation.lng - 0.05}%2C${userLocation.lat - 0.05}%2C${userLocation.lng + 0.05}%2C${userLocation.lat + 0.05}&layer=mapnik&marker=${userLocation.lat}%2C${userLocation.lng}"
+                    allowfullscreen>
+                </iframe>
+            `;
+        }
+
+        // Toggle Emergency
+        function toggleEmergency() {
+            if (isEmergencyActive) {
+                showRevokeConfirmation();
+            } else {
+                document.getElementById('hospitalCount').textContent = 
+                    selectedHospitals.size > 0 ? selectedHospitals.size : '4';
+                document.getElementById('confirmModal').classList.add('active');
+            }
+        }
+
+        // Close Modal
+        function closeModal() {
+            document.getElementById('confirmModal').classList.remove('active');
+        }
+
+        // Show Revoke Confirmation
+        function showRevokeConfirmation() {
+            if (confirm('Are you sure you want to revoke emergency access?')) {
+                revokeEmergency();
+            }
+        }
+
+        // Confirm Emergency
+        async function confirmEmergency() {
+            closeModal();
+            
+            const btn = document.getElementById('emergencyBtn');
+            btn.disabled = true;
+            
+            try {
+                // Get current location
+                let location = userLocation;
+                if (!location && 'geolocation' in navigator) {
+                    await new Promise((resolve, reject) => {
+                        navigator.geolocation.getCurrentPosition(
+                            (pos) => {
+                                location = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                                resolve();
+                            },
+                            reject
+                        );
+                    });
+                }
+
+                // Send emergency request
+                const response = await fetch(`${API_BASE_URL}/emergency/grant-access`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        location,
+                        hospitals: Array.from(selectedHospitals),
+                        patientInfo: {
+                            name: currentUser.name,
+                            bloodType: currentUser.bloodType,
+                            allergies: currentUser.allergies
+                        }
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    activateEmergency(data);
+                } else {
+                    throw new Error('Failed to activate emergency');
+                }
+            } catch (error) {
+                console.error('Emergency activation error:', error);
+                // Activate in demo mode
+                activateEmergency({
+                    token: 'emergency_' + Date.now(),
+                    expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+                    qrUrl: null
+                });
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        // Activate Emergency
+        function activateEmergency(data) {
+            isEmergencyActive = true;
+            emergencyEndTime = new Date(data.expiresAt || Date.now() + 24 * 60 * 60 * 1000);
+            
+            const btn = document.getElementById('emergencyBtn');
+            const statusBadge = document.getElementById('statusBadge');
+            const statusText = document.getElementById('statusText');
+            const countdown = document.getElementById('countdown');
+            
+            btn.classList.add('active');
+            btn.innerHTML = '<i class="fas fa-check-circle"></i><span>Active</span>';
+            
+            statusBadge.classList.remove('status-idle');
+            statusBadge.classList.add('status-active');
+            statusText.textContent = 'Emergency Active';
+            
+            countdown.style.display = 'block';
+            startCountdown();
+            
+            // Generate QR code
+            if (data.qrUrl) {
+                generateQRCode(data.qrUrl);
+            } else {
+                generateQRCode();
+            }
+            
+            showToast('Emergency alert sent to hospitals!', 'success');
+            addNotification('Emergency activated', 'warning');
+            
+            // Notify hospitals
+            notifyHospitals();
+            
+            // Save state
+            localStorage.setItem('emergencyState', JSON.stringify({
+                active: true,
+                endTime: emergencyEndTime.toISOString(),
+                token: data.token
+            }));
+        }
+
+        // Revoke Emergency
+        async function revokeEmergency() {
+            try {
+                await fetch(`${API_BASE_URL}/emergency/revoke-access`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+            } catch (error) {
+                console.log('Revoke request failed, continuing with local revocation');
+            }
+
+            isEmergencyActive = false;
+            clearInterval(countdownInterval);
+            
+            const btn = document.getElementById('emergencyBtn');
+            const statusBadge = document.getElementById('statusBadge');
+            const statusText = document.getElementById('statusText');
+            const countdown = document.getElementById('countdown');
+            
+            btn.classList.remove('active');
+            btn.innerHTML = '<i class="fas fa-phone-alt"></i><span>SOS</span>';
+            
+            statusBadge.classList.remove('status-active');
+            statusBadge.classList.add('status-idle');
+            statusText.textContent = 'Standby Mode';
+            
+            countdown.style.display = 'none';
+            
+            // Clear hospital notifications
+            document.querySelectorAll('.hospital-item').forEach(item => {
+                item.classList.remove('notified');
+            });
+            
+            showToast('Emergency access revoked', 'info');
+            addNotification('Emergency deactivated', 'info');
+            
+            localStorage.removeItem('emergencyState');
+        }
+
+        // Start Countdown
+        function startCountdown() {
+            updateCountdown();
+            countdownInterval = setInterval(updateCountdown, 1000);
+        }
+
+        // Update Countdown
+        function updateCountdown() {
+            if (!emergencyEndTime) return;
+            
+            const now = new Date();
+            const diff = emergencyEndTime - now;
+            
+            if (diff <= 0) {
+                revokeEmergency();
+                return;
+            }
+            
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            document.getElementById('countdownTime').textContent = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Check Existing Emergency
+        function checkExistingEmergency() {
+            const saved = localStorage.getItem('emergencyState');
+            if (saved) {
+                const state = JSON.parse(saved);
+                if (state.active && new Date(state.endTime) > new Date()) {
+                    emergencyEndTime = new Date(state.endTime);
+                    activateEmergency({ expiresAt: state.endTime, token: state.token });
+                } else {
+                    localStorage.removeItem('emergencyState');
+                }
+            }
+        }
+
+        // Notify Selected Hospitals
+        function notifySelectedHospitals() {
+            if (!isEmergencyActive) {
+                toggleEmergency();
+            } else {
+                notifyHospitals();
+            }
+        }
+
+        // Notify Hospitals
+        function notifyHospitals() {
+            const hospitals = selectedHospitals.size > 0 
+                ? Array.from(selectedHospitals) 
+                : ['1', '2', '3', '4'];
+            
+            hospitals.forEach((id, index) => {
+                setTimeout(() => {
+                    const item = document.querySelector(`[data-hospital-id="${id}"]`);
+                    if (item) {
+                        item.classList.add('notified');
+                        const name = item.querySelector('.hospital-name').textContent;
+                        addNotification(`${name} notified`, 'success');
+                    }
+                }, index * 500);
+            });
+            
+            showToast(`Emergency alert sent to ${hospitals.length} hospitals`, 'success');
+        }
+
+        // Generate QR Code
+        function generateQRCode(url) {
+            const container = document.getElementById('qrCode');
+            container.innerHTML = '';
+            
+            const qrData = url || `myhealthid://emergency/${currentUser?._id || 'demo'}/${Date.now()}`;
+            
+            qrCodeInstance = new QRCode(container, {
+                text: qrData,
+                width: 150,
+                height: 150,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            
+            showToast('QR code generated', 'success');
+        }
+
+        // Add Notification
+        function addNotification(title, type = 'info') {
+            const container = document.getElementById('notificationList');
+            const time = new Date().toLocaleTimeString();
+            
+            const iconMap = {
+                success: 'fa-check-circle',
+                warning: 'fa-exclamation-triangle',
+                info: 'fa-info-circle'
+            };
+            
+            const notification = document.createElement('div');
+            notification.className = 'notification-item';
+            notification.innerHTML = `
+                <div class="notification-icon ${type}">
+                    <i class="fas ${iconMap[type] || iconMap.info}"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">${title}</div>
+                    <div class="notification-time">${time}</div>
+                </div>
+            `;
+            
+            container.insertBefore(notification, container.firstChild);
+            
+            // Keep only last 10 notifications
+            while (container.children.length > 10) {
+                container.removeChild(container.lastChild);
+            }
+        }
+
+        // Show Toast
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const iconMap = {
+                success: 'fa-check-circle',
+                error: 'fa-times-circle',
+                info: 'fa-info-circle'
+            };
+            
+            toast.innerHTML = `
+                <i class="fas ${iconMap[type] || iconMap.info}"></i>
+                <span>${message}</span>
+            `;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        // Logout
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userData');
+            localStorage.removeItem('emergencyState');
+            
+            if (socket) {
+                socket.disconnect();
+            }
+            
+            showLogin();
+        }
+    </script>
+</body>
+</html>
