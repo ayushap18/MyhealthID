@@ -7,6 +7,7 @@ import { ethers } from 'ethers';
 import { validateRequest, phoneVerifySchema, otpVerifySchema, registerSchema, loginSchema } from '../middleware/validation.js';
 import { authLimiter, otpLimiter } from '../middleware/rateLimiter.js';
 import { sendOTP, verifyOTP, isTwilioConfigured } from '../services/otpService.js';
+import { trackAuthEvent, setUserContext, captureException, addBreadcrumb } from '../services/sentryService.js';
 
 const router = express.Router();
 
@@ -189,6 +190,15 @@ router.post('/register', authLimiter, [
     const token = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 
+    // Track registration in Sentry
+    trackAuthEvent('register', {
+      userId: user.patientId,
+      role: user.role,
+      email: user.email,
+    });
+    setUserContext(user);
+    addBreadcrumb('User registered successfully', 'auth', { userId: user.patientId, role: user.role });
+
     res.status(201).json({
       success: true,
       message: 'User registered successfully',
@@ -211,6 +221,7 @@ router.post('/register', authLimiter, [
 
   } catch (error) {
     console.error('Registration error:', error);
+    captureException(error, { tags: { action: 'register' }, extra: { email: req.body?.email } });
     res.status(500).json({ error: 'Registration failed', details: error.message });
   }
 });
@@ -257,6 +268,15 @@ router.post('/login', authLimiter, [
     const token = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 
+    // Track login in Sentry
+    trackAuthEvent('login', {
+      userId: user.patientId,
+      role: user.role,
+      email: user.email,
+    });
+    setUserContext(user);
+    addBreadcrumb('User logged in', 'auth', { userId: user.patientId, role: user.role });
+
     res.json({
       success: true,
       message: 'Login successful',
@@ -274,6 +294,8 @@ router.post('/login', authLimiter, [
 
   } catch (error) {
     console.error('Login error:', error);
+    captureException(error, { tags: { action: 'login' }, extra: { email: req.body?.email } });
+    trackAuthEvent('login_failed', { email: req.body?.email, error: error.message });
     res.status(500).json({ error: 'Login failed', details: error.message });
   }
 });
