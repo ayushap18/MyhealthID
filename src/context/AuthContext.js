@@ -2,6 +2,7 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { apiService, authStorage } from '../services/apiService';
 import socketService from '../services/socketService';
+import sentryService from '../services/sentryService';
 import logger from '../utils/logger';
 
 const AuthContext = createContext({});
@@ -34,6 +35,9 @@ export const AuthProvider = ({ children }) => {
       if (storedToken && userData) {
         setToken(storedToken);
         setUser(userData);
+
+        // Set Sentry user context for error tracking
+        sentryService.setUser(userData);
 
         // Migrate legacy key if present
         if (!storedUser && legacyUser) {
@@ -71,6 +75,10 @@ export const AuthProvider = ({ children }) => {
         refreshToken: response.refreshToken,
         user: response.user,
       });
+
+      // Set Sentry user context & track login
+      sentryService.setUser(response.user);
+      sentryService.trackAuth('login_success', { userId: response.user.patientId, role: response.user.role });
       
       try {
         await socketService.connect();
@@ -82,6 +90,8 @@ export const AuthProvider = ({ children }) => {
       return { success: true, user: response.user };
     } catch (error) {
       logger.error('AuthContext', 'Login error', error);
+      sentryService.trackAuth('login_failed', { error: error.message });
+      sentryService.captureError(error, { tags: { action: 'login' } });
       return { success: false, error: error.message || error.error || 'Login failed' };
     }
   };
@@ -101,6 +111,10 @@ export const AuthProvider = ({ children }) => {
         refreshToken: response.refreshToken,
         user: response.user,
       });
+
+      // Set Sentry user context & track registration
+      sentryService.setUser(response.user);
+      sentryService.trackAuth('register_success', { userId: response.user.patientId, role: response.user.role });
       
       try {
         await socketService.connect();
@@ -112,12 +126,18 @@ export const AuthProvider = ({ children }) => {
       return { success: true, user: response.user, wallet: response.wallet };
     } catch (error) {
       logger.error('AuthContext', 'Registration error', error);
+      sentryService.trackAuth('register_failed', { error: error.message });
+      sentryService.captureError(error, { tags: { action: 'register' } });
       return { success: false, error: error.message || error.error || 'Registration failed' };
     }
   };
 
   const logout = async () => {
     try {
+      // Track logout in Sentry
+      sentryService.trackAuth('logout', { userId: user?.patientId });
+      sentryService.clearUser();
+      
       socketService.leaveRoom(user?.patientId || user?.id);
       socketService.disconnect();
       await apiService.auth.logout();
@@ -125,6 +145,7 @@ export const AuthProvider = ({ children }) => {
       setUser(null);
     } catch (error) {
       logger.error('AuthContext', 'Logout error', error);
+      sentryService.captureError(error, { tags: { action: 'logout' } });
     }
   };
 

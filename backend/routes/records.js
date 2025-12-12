@@ -10,6 +10,7 @@ import { io } from '../server.js';
 import { encryptFile, hashData } from '../services/encryptionService.js';
 import { uploadLimiter } from '../middleware/rateLimiter.js';
 import { validateFileUpload } from '../middleware/validation.js';
+import { trackAccessEvent, trackBlockchainOperation, captureException, addBreadcrumb } from '../services/sentryService.js';
 
 const router = express.Router();
 
@@ -141,6 +142,22 @@ router.post('/upload', authenticateToken, uploadLimiter, upload.single('file'), 
 
     console.log(`✅ Record ${recordId} uploaded successfully`);
 
+    // Track in Sentry
+    trackAccessEvent('upload', {
+      recordId,
+      patientId,
+      uploadedBy: req.user.userId,
+      hospitalName,
+      fileSize: record.fileSize,
+    });
+    trackBlockchainOperation('registerDocument', {
+      recordId,
+      txHash: blockchainResult.txHash,
+      blockNumber: blockchainResult.blockNumber,
+      ipfsCID,
+    });
+    addBreadcrumb('Record uploaded to blockchain', 'records', { recordId, patientId });
+
     res.status(201).json({
       success: true,
       message: 'Record uploaded successfully',
@@ -162,6 +179,10 @@ router.post('/upload', authenticateToken, uploadLimiter, upload.single('file'), 
 
   } catch (error) {
     console.error('❌ Upload error:', error);
+    captureException(error, {
+      tags: { action: 'upload', type: 'record' },
+      extra: { patientId: req.body?.patientId, hospitalName: req.body?.hospitalName },
+    });
     res.status(500).json({ 
       error: 'Upload failed', 
       details: error.message 

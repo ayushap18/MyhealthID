@@ -158,10 +158,19 @@ app.get('/health', async (req, res) => {
       api: 'running',
       mongodb: mongoStatus,
       blockchain: blockchainInfo ? 'connected' : 'disconnected',
-      socketio: 'running'
+      socketio: 'running',
+      sentry: process.env.SENTRY_DSN ? 'enabled' : 'disabled'
     },
     blockchain: blockchainInfo
   });
+});
+
+// Sentry test endpoint (development only)
+app.get('/debug-sentry', (req, res) => {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(404).json({ error: 'Not found' });
+  }
+  throw new Error('Sentry Test Error - This is a test error to verify Sentry is working!');
 });
 
 // API Routes

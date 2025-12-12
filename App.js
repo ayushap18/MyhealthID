@@ -55,35 +55,221 @@ import QRHealthCardScreen from './src/screens/patient/QRHealthCardScreen';
 import RequestAccessScreen from './src/screens/insurer/RequestAccessScreen';
 import VerifyRecordScreen from './src/screens/insurer/VerifyRecordScreen';
 import * as Sentry from '@sentry/react-native';
+import sentryService from './src/services/sentryService';
 
+// ═══════════════════════════════════════════════════════════════════════════
+// SENTRY INITIALIZATION - Full-featured error tracking & monitoring
+// ═══════════════════════════════════════════════════════════════════════════
 Sentry.init({
   dsn: 'https://ba362b6c03946ef3b80383e49d43c1a7@o4510520744673280.ingest.us.sentry.io/4510520756666368',
-
-  // Adds more context data to events (IP address, cookies, user, etc.)
-  // For more information, visit: https://docs.sentry.io/platforms/react-native/data-management/data-collected/
+  
+  // ─────────────────────────────────────────────────────────────────────────
+  // ENVIRONMENT & RELEASE
+  // ─────────────────────────────────────────────────────────────────────────
+  environment: __DEV__ ? 'development' : 'production',
+  release: 'myhealthid-app@1.0.0',
+  dist: '1',
+  
+  // ─────────────────────────────────────────────────────────────────────────
+  // DATA COLLECTION
+  // ─────────────────────────────────────────────────────────────────────────
+  // Collect user IP, device info, etc. for better debugging
   sendDefaultPii: true,
-
-  // Enable Logs
+  
+  // Enable structured logging
   enableLogs: true,
-
-  // Configure Session Replay
-  replaysSessionSampleRate: 0.1,
-  replaysOnErrorSampleRate: 1,
-  integrations: [Sentry.mobileReplayIntegration(), Sentry.feedbackIntegration()],
-
-  // uncomment the line below to enable Spotlight (https://spotlightjs.com)
+  
+  // Maximum breadcrumbs to store
+  maxBreadcrumbs: 100,
+  
+  // Attach stack traces to messages
+  attachStacktrace: true,
+  
+  // ─────────────────────────────────────────────────────────────────────────
+  // PERFORMANCE MONITORING
+  // ─────────────────────────────────────────────────────────────────────────
+  // Sample rate for performance monitoring (100% in dev, 20% in prod)
+  tracesSampleRate: __DEV__ ? 1.0 : 0.2,
+  
+  // Enable automatic instrumentation for React Native
+  enableAutoPerformanceTracing: true,
+  
+  // Track app start time
+  enableAppStartTracking: true,
+  
+  // Track slow/frozen frames
+  enableFramesTracking: true,
+  
+  // Track stalls (ANRs)
+  enableStallTracking: true,
+  
+  // Track user interactions
+  enableUserInteractionTracing: true,
+  
+  // ─────────────────────────────────────────────────────────────────────────
+  // SESSION REPLAY (Record user sessions for debugging)
+  // ─────────────────────────────────────────────────────────────────────────
+  // Capture 10% of sessions, 100% on error
+  replaysSessionSampleRate: __DEV__ ? 1.0 : 0.1,
+  replaysOnErrorSampleRate: 1.0,
+  
+  // ─────────────────────────────────────────────────────────────────────────
+  // INTEGRATIONS
+  // ─────────────────────────────────────────────────────────────────────────
+  integrations: [
+    // Mobile session replay - records user sessions
+    Sentry.mobileReplayIntegration({
+      // Mask all text for privacy
+      maskAllText: false,
+      // Mask all images for privacy
+      maskAllImages: false,
+      // Mask user input
+      maskAllVectors: false,
+    }),
+    
+    // User feedback widget
+    Sentry.feedbackIntegration({
+      // Button label
+      buttonLabel: 'Report a Bug',
+      // Submit button label
+      submitButtonLabel: 'Send Feedback',
+      // Form title
+      formTitle: 'Report an Issue',
+      // Email label
+      emailLabel: 'Your Email',
+      // Message label
+      messageLabel: 'What happened?',
+      // Name label
+      nameLabel: 'Your Name',
+      // Success message
+      successMessageText: 'Thank you for your feedback!',
+    }),
+    
+    // Screenshot attachments on crash
+    Sentry.screenshotIntegration(),
+    
+    // View hierarchy on crash
+    Sentry.viewHierarchyIntegration(),
+    
+    // HTTP client errors tracking
+    Sentry.httpClientIntegration({
+      // Track failed requests
+      failedRequestStatusCodes: [[400, 599]],
+      // Track request bodies
+      failedRequestTargets: [/.*/],
+    }),
+    
+    // React Native specific integrations
+    Sentry.reactNativeTracingIntegration({
+      // Track navigation changes
+      routingInstrumentation: Sentry.reactNavigationIntegration(),
+      // Enable native frames
+      enableNativeFramesTracking: true,
+      // Enable stall tracking
+      enableStallTracking: true,
+      // Enable user interaction
+      enableUserInteractionTracing: true,
+    }),
+  ],
+  
+  // ─────────────────────────────────────────────────────────────────────────
+  // DATA SCRUBBING (Privacy)
+  // ─────────────────────────────────────────────────────────────────────────
+  beforeSend(event, hint) {
+    // Remove sensitive data from request body
+    if (event.request?.data) {
+      const sensitiveFields = [
+        'password', 'passwordHash', 'newPassword',
+        'privateKey', 'mnemonic', 'seedPhrase',
+        'token', 'refreshToken', 'accessToken',
+        'otp', 'code', 'verificationCode',
+      ];
+      
+      let data = event.request.data;
+      try {
+        data = typeof data === 'string' ? JSON.parse(data) : data;
+        if (typeof data === 'object' && data !== null) {
+          sensitiveFields.forEach(field => {
+            if (data[field]) data[field] = '[REDACTED]';
+          });
+          event.request.data = data;
+        }
+      } catch (e) {
+        // Keep original if not JSON
+      }
+    }
+    
+    return event;
+  },
+  
+  beforeBreadcrumb(breadcrumb) {
+    // Don't capture breadcrumbs for sensitive screens
+    if (breadcrumb.data?.to?.includes('Auth') || 
+        breadcrumb.data?.to?.includes('Login')) {
+      if (breadcrumb.data?.params) {
+        breadcrumb.data.params = '[REDACTED]';
+      }
+    }
+    return breadcrumb;
+  },
+  
+  // ─────────────────────────────────────────────────────────────────────────
+  // ERROR FILTERING
+  // ─────────────────────────────────────────────────────────────────────────
+  ignoreErrors: [
+    // Network errors
+    'Network request failed',
+    'NetworkError',
+    'timeout',
+    
+    // Common React Native errors that aren't actionable
+    'ResizeObserver loop limit exceeded',
+    'Non-Error promise rejection captured',
+    
+    // Expected JWT expiration
+    'jwt expired',
+    'TokenExpiredError',
+  ],
+  
+  // Enable Spotlight for local debugging (uncomment in dev)
   // spotlight: __DEV__,
 });
 
+// Set global tags for filtering in Sentry dashboard
+Sentry.setTags({
+  'app.platform': 'react-native',
+  'app.type': 'healthcare',
+  'blockchain.network': 'sepolia',
+  'blockchain.chainId': '11155111',
+});
+
 const Stack = createStackNavigator();
+
+// Navigation tracking for Sentry performance monitoring
+const routeNameRef = React.createRef();
 
 export default Sentry.wrap(function App() {
   const [showSplash, setShowSplash] = useState(true);
   const navigationRef = useRef(null);
 
+  // Handle navigation state changes for Sentry tracking
+  const onNavigationStateChange = useCallback(() => {
+    const previousRouteName = routeNameRef.current;
+    const currentRouteName = navigationRef.current?.getCurrentRoute()?.name;
+
+    if (previousRouteName !== currentRouteName && currentRouteName) {
+      // Track screen change in Sentry
+      sentryService.trackNavigation(previousRouteName, currentRouteName);
+    }
+
+    // Save the current route name for later comparison
+    routeNameRef.current = currentRouteName;
+  }, []);
+
   // Handle session expiry - redirect to login
   const handleSessionExpired = useCallback(() => {
     logger.info('App', 'Session expired, redirecting to login');
+    sentryService.trackAuth('session_expired');
     toast.sessionExpired();
     
     // Navigate to role select after brief delay
@@ -124,7 +310,13 @@ export default Sentry.wrap(function App() {
       <View style={styles.container}>
         <NotificationBanner />
         <StatusBar style="light" />
-        <NavigationContainer ref={navigationRef}>
+        <NavigationContainer 
+          ref={navigationRef}
+          onReady={() => {
+            routeNameRef.current = navigationRef.current?.getCurrentRoute()?.name;
+          }}
+          onStateChange={onNavigationStateChange}
+        >
           <Stack.Navigator
             initialRouteName="Onboarding"
             screenOptions={{
