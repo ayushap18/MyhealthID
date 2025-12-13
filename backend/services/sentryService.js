@@ -185,6 +185,10 @@ export const isSentryInitialized = () => isInitialized;
  * Sentry request handler - must be the first middleware
  */
 export const sentryRequestHandler = () => {
+  // Return no-op middleware if Sentry is not initialized
+  if (!isInitialized || !Sentry.Handlers?.requestHandler) {
+    return (req, res, next) => next();
+  }
   return Sentry.Handlers.requestHandler({
     user: ['id', 'email', 'role'],
     ip: true,
@@ -196,6 +200,10 @@ export const sentryRequestHandler = () => {
  * Sentry tracing handler - for performance monitoring
  */
 export const sentryTracingHandler = () => {
+  // Return no-op middleware if Sentry is not initialized
+  if (!isInitialized || !Sentry.Handlers?.tracingHandler) {
+    return (req, res, next) => next();
+  }
   return Sentry.Handlers.tracingHandler();
 };
 
@@ -203,6 +211,10 @@ export const sentryTracingHandler = () => {
  * Sentry error handler - must be after all routes
  */
 export const sentryErrorHandler = () => {
+  // Return no-op middleware if Sentry is not initialized
+  if (!isInitialized || !Sentry.Handlers?.errorHandler) {
+    return (err, req, res, next) => next(err);
+  }
   return Sentry.Handlers.errorHandler({
     shouldHandleError(error) {
       const status = error.status || error.statusCode || 500;

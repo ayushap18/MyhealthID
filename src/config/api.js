@@ -15,7 +15,7 @@ const DEFAULTS = {
   // Production URL - Railway deployment
   PRODUCTION: 'https://myhealthid-backend-production.up.railway.app',
   // Development URL - local backend (update IP for physical device testing)
-  DEVELOPMENT: 'http://192.168.1.4:5002',
+  DEVELOPMENT: 'http://10.199.252.47:5002',
 };
 
 // Resolve base URL
