@@ -8,6 +8,11 @@ import { createServer } from 'http';
 import mongoSanitize from 'express-mongo-sanitize';
 import hpp from 'hpp';
 import compression from 'compression';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Import routes
 import authRoutes from './routes/auth.js';
@@ -17,6 +22,7 @@ import auditRoutes from './routes/audit.js';
 import complianceRoutes from './routes/compliance.js';
 import emergencyRoutes from './routes/emergency.js';
 import patientRoutes from './routes/patient.js';
+import hospitalRoutes from './routes/hospitals.js';
 
 // Import services
 import blockchainService from './services/blockchainService.js';
@@ -57,7 +63,12 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://cdn.socket.io"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", "ws:", "wss:", "https:"],
+      frameSrc: ["'self'", "https://www.openstreetmap.org"],
     },
   },
   crossOriginEmbedderPolicy: false,
@@ -85,6 +96,9 @@ app.use(compression());
 // Rate limiting for all API routes
 app.use('/api/', apiLimiter);
 
+// Serve static files from public directory
+app.use(express.static(path.join(__dirname, '../public')));
+
 // MongoDB connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/myhealthid')
   .then(() => console.log('✅ MongoDB connected'))
@@ -106,7 +120,7 @@ io.on('connection', (socket) => {
     console.log(`🔌 Socket connected (${clientCount} active)`);
   }
 
-  // Join room based on user ID
+  // Join room based on user ID (patient)
   socket.on('join', (userId) => {
     // Prevent duplicate join logs for same user
     if (!connectedUsers.has(userId)) {
@@ -115,6 +129,13 @@ io.on('connection', (socket) => {
     }
     connectedUsers.get(userId).add(socket.id);
     socket.join(userId);
+    socket.join(`patient_${userId}`);
+  });
+
+  // Join hospital room
+  socket.on('join_hospital', (hospitalId) => {
+    socket.join(`hospital_${hospitalId}`);
+    console.log(`🏥 Hospital ${hospitalId} connected to emergency alerts`);
   });
 
   // Leave room
@@ -127,6 +148,12 @@ io.on('connection', (socket) => {
       }
     }
     socket.leave(userId);
+    socket.leave(`patient_${userId}`);
+  });
+
+  // Leave hospital room
+  socket.on('leave_hospital', (hospitalId) => {
+    socket.leave(`hospital_${hospitalId}`);
   });
 
   socket.on('disconnect', () => {
@@ -181,6 +208,10 @@ app.use('/api/audit', auditRoutes);
 app.use('/api/compliance', complianceRoutes);
 app.use('/api/emergency', emergencyRoutes);
 app.use('/api/patient', patientRoutes);
+app.use('/api/hospitals', hospitalRoutes);
+
+// Make io available to routes
+app.set('io', io);
 
 // Sentry error handler (must be after routes, before other error handlers)
 if (process.env.SENTRY_DSN && process.env.SENTRY_DSN !== 'your-sentry-dsn-here') {
@@ -224,6 +255,8 @@ httpServer.listen(PORT, () => {
   console.log('  POST   /api/consent/request');
   console.log('  POST   /api/consent/approve');
   console.log('  GET    /api/audit/:patientId');
+  console.log('  GET    /api/hospitals/nearby');
+  console.log('  POST   /api/hospitals/emergency-broadcast');
   console.log('  GET    /health');
   console.log('\n✨ Ready to handle requests!\n');
 });
